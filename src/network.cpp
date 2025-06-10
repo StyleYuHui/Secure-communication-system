@@ -1,8 +1,10 @@
 //
-// Created by 31007 on 2025/6/9.
+// Created by PaperPlane on 2025/6/9.
 //
 
 #include "network.h"
+
+
 bool sendCertificate(SOCKET sock, const std::vector<unsigned char>& certBytes) {
     // 先发送 4 字节证书长度
     uint32_t cert_len = static_cast<uint32_t>(certBytes.size());
@@ -26,6 +28,7 @@ bool sendCertificate(SOCKET sock, const std::vector<unsigned char>& certBytes) {
 
     return true;
 }
+
 bool receiveCertificate(SOCKET sock, std::vector<unsigned char>& certBytes) {
     // 先接收 4 字节证书长度
     uint32_t cert_len = 0;
@@ -89,6 +92,7 @@ netMessage::netMessage(std::string msg,RSA rsa) {
 
     HashRes = sha256(msg);
 }
+
 std::vector<unsigned char> netMessage::serialize(){
     std::vector<unsigned char> buffer;
 

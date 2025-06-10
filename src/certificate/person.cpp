@@ -1,5 +1,8 @@
+//
+// Created by PaperPlane on 2025/6/6.
+//
 #include "certificate/person.h"
-#include "certificate/certificate.h"
+#include <certificate/certificate.h>
 
 person::person(std::string name) : rsa(CRYPT_BIE_LENGTH),elGamal(CRYPT_BIE_LENGTH){
 

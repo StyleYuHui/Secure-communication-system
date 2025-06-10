@@ -1,33 +1,27 @@
-#include "crypto/Rsa.h"
-#include <NTL/ZZ.h>
-#include <ctime>
-#include <random>
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
+//
+// Created by PaperPlane on 2025/6/7.
+//
 
-using namespace NTL;
-using namespace std;
+
+#include "crypto/Rsa.h"
+
 
 // 构造函数，生成RSA密钥对
 RSA::RSA(unsigned int keyBits) {
-    // 初始化随机数种子
-    SetSeed(ZZ(time(0)));
+    SetSeed(NTL::ZZ(time(0)));
     
     // 生成两个大素数 p 和 q
     long primeBits = keyBits / 2;
-    p = GenPrime_ZZ(primeBits);
-    q = GenPrime_ZZ(primeBits);
+    p = NTL::GenPrime_ZZ(primeBits);
+    q = NTL::GenPrime_ZZ(primeBits);
     
     // 计算模数 n = p * q
     n = p * q;
     
     // 计算欧拉函数值 phi(n) = (p-1) * (q-1)
     phi = (p - 1) * (q - 1);
-    
-    // 选择公钥指数 e，通常选择65537作为公钥指数
-    e = ZZ(65537);
+
+    e = NTL::ZZ(65537);
     
     // 确保 e 与 phi 互质
     while (GCD(e, phi) != 1) {
@@ -35,7 +29,7 @@ RSA::RSA(unsigned int keyBits) {
     }
     
     // 计算私钥指数 d，使得 e * d ≡ 1 (mod phi)
-    ZZ gcd;
+    NTL::ZZ gcd;
     InvMod(d, e, phi);
 }
 
@@ -46,37 +40,37 @@ RSA::RSA(NTL::ZZ moudle,NTL::ZZ key,std::string option) {
     else if (option == "decrypt")
         this->d=key;
     else
-        cerr<<"plesa choose encrypt or decrypt "<<endl;
+        std::cerr<<"plesa choose encrypt or decrypt "<<std::endl;
 }
 
 // 加密单个ZZ
-ZZ RSA::encrypt(const ZZ& message) const {
+NTL::ZZ RSA::encrypt(const NTL::ZZ& message) const {
     // 检查消息是否小于模数n
     if (message >= n) {
-        cerr << "Error: 消息过大，无法加密" << endl;
-        return ZZ(0);
+        std::cerr << "Error: 消息过大，无法加密" << std::endl;
+        return NTL::ZZ(0);
     }
     // 使用公钥(e, n)加密: c = m^e mod n
-    ZZ ciphertext;
+    NTL::ZZ ciphertext;
     NTL::PowerMod(ciphertext, message, e, n);
     return ciphertext;
 }
 
 // 解密单个ZZ
-ZZ RSA::decrypt(const ZZ& ciphertext) const {
+NTL::ZZ RSA::decrypt(const NTL::ZZ& ciphertext) const {
     // 使用私钥(d, n)解密: m = c^d mod n
-    ZZ message;
+    NTL::ZZ message;
     NTL::PowerMod(message, ciphertext, d, n);
     return message;
 }
 
 // 对字符串消息进行加密
-vector<ZZ> RSA::encryptString(const string& message) const {
-    vector<ZZ> ciphertext;
+std::vector<NTL::ZZ> RSA::encryptString(const std::string& message) const {
+    std::vector<NTL::ZZ> ciphertext;
     
     // 每次处理一个字节
     for (char c : message) {
-        ZZ m = ZZ(static_cast<unsigned char>(c));
+        NTL::ZZ m = NTL::ZZ(static_cast<unsigned char>(c));
         ciphertext.push_back(encrypt(m));
     }
     
@@ -84,11 +78,11 @@ vector<ZZ> RSA::encryptString(const string& message) const {
 }
 
 // 对加密后的ZZ向量进行解密
-string RSA::decryptString(const vector<ZZ>& ciphertext) const {
-    string message;
+std::string RSA::decryptString(const std::vector<NTL::ZZ>& ciphertext) const {
+    std::string message;
     
-    for (const ZZ& c : ciphertext) {
-        ZZ m = decrypt(c);
+    for (const NTL::ZZ& c : ciphertext) {
+        NTL::ZZ m = decrypt(c);
         message.push_back(static_cast<char>(to_long(m)));
     }
     
@@ -96,43 +90,43 @@ string RSA::decryptString(const vector<ZZ>& ciphertext) const {
 }
 
 // 计算字符串的简单哈希值
-ZZ RSA::hashFunction(const string& message) const {
-    ZZ hash = ZZ(0);
+NTL::ZZ RSA::hashFunction(const std::string& message) const {
+    NTL::ZZ hash = NTL::ZZ(0);
     
     // 简单的哈希函数，将每个字符的ASCII值加权求和
     for (size_t i = 0; i < message.length(); ++i) {
-        hash = (hash * 256 + ZZ(static_cast<unsigned char>(message[i]))) % n;
+        hash = (hash * 256 + NTL::ZZ(static_cast<unsigned char>(message[i]))) % n;
     }
     
     return hash;
 }
 
 // 对消息进行签名
-ZZ RSA::sign(const ZZ& message) const {
+NTL::ZZ RSA::sign(const NTL::ZZ& message) const {
     // 使用私钥(d, n)对消息签名: s = m^d mod n
-    ZZ signature;
+    NTL::ZZ signature;
     NTL::PowerMod(signature, message, d, n);
     return signature;
 }
 
 // 验证签名
-bool RSA::verify(const ZZ& message, const ZZ& signature) const {
+bool RSA::verify(const NTL::ZZ& message, const NTL::ZZ& signature) const {
     // 使用公钥(e, n)验证签名: m' = s^e mod n，然后检查m'是否等于m
-    ZZ decrypted_signature;
+    NTL::ZZ decrypted_signature;
     NTL::PowerMod(decrypted_signature, signature, e, n);
     return decrypted_signature == message;
 }
 
 // 对消息的哈希值进行签名
-ZZ RSA::signHash(const string& message) const {
+NTL::ZZ RSA::signHash(const std::string& message) const {
     // 先计算消息的哈希值，然后签名
-    ZZ hash = hashFunction(message);
+    NTL::ZZ hash = hashFunction(message);
     return sign(hash);
 }
 
 // 验证哈希签名
-bool RSA::verifyHash(const string& message, const ZZ& signature) const {
+bool RSA::verifyHash(const std::string& message, const NTL::ZZ& signature) const {
     // 计算消息的哈希值，然后验证签名
-    ZZ hash = hashFunction(message);
+    NTL::ZZ hash = hashFunction(message);
     return verify(hash, signature);
 }

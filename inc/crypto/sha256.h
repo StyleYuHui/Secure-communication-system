@@ -12,6 +12,14 @@
 #ifndef CRYPTOWEBSYS_SHA256_H
 #define CRYPTOWEBSYS_SHA256_H
 #include <string>
+#include <iostream>
+#include <vector>
+#include <bitset>
+#include <iomanip>
+#include <sstream>
+#include <cstring>
+#include <cstdint>
+
 /**
  * @brief 计算输入字符串的 SHA-256 哈希值。
  *

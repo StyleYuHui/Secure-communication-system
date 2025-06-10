@@ -1,24 +1,9 @@
 //
-// Created by 31007 on 2025/6/8.
+// Created by PaperPlane on 2025/6/8.
 //
 
 #include "run.h"
-#include "network.h"
-#include <certificate/person.h>
-#include <iostream>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <string>
-#include <thread>
-#include <atomic>
-#include <cstring>
-#include <certificate/certificate.h>
 
-#pragma comment(lib, "Ws2_32.lib")
-
-#define DEFAULT_PORT "8888"
-#define DEFAULT_BUFLEN 4096
-#define SERVER_IP "127.0.0.1"
 
 std::atomic<bool> g_running(true);
 
